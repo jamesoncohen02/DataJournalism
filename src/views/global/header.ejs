@@ -1,0 +1,28 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <%if (filename.includes("index.ejs")){%>
+    <title><%="Eat or Retreat?"%></title>
+  <%}else if(filename.includes("about.ejs")) {%>
+    <title><%="About Eat or Retreat"%></title>
+  <%}else{%>
+    <title><%=data.Zipcode%></title>
+  <%}%>
+  <link rel="icon" href="images/restPic.png" type="image" sizes="16x16">
+  <meta name="author" content="Jameson Cohen">
+  <meta name="description" content="A data journalism website that condenses a large data set with information about NYC restaurant inspections into more digestable information for viewers">
+  <meta content="text/html" http-equiv="Content-type" />
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <h1>EAT OR RETREAT?</h1>
+    <h4 id="subtitle"><i>An In-Depth Look at the Quality and Cleanliness of NYC Cuisine</i></h4>

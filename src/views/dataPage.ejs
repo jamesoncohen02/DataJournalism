@@ -1,0 +1,114 @@
+<%- include('global/header.ejs'); %>
+<%- include('global/navbar.ejs'); %>
+
+<div class="container-fluid">
+<div class="row">
+  <div class="col-2">
+    <a class="btn btn-info" id="prevButton" href="<%-prevData.Zipcode%>.html">Previous Zip Code</a>
+  </div>
+  <div class="col-8">
+  </div>
+  <div class="col-2">
+        <a class="btn btn-info float-right" id="nextButton" href="<%-nextData.Zipcode%>.html" style="padding-left: 27px; padding-right: 27px;">Next Zip Code</a>
+  </div>
+</div>
+</div>
+
+<div class="container-fluid">
+<div class="row justify-content-center">
+  <div class="col-9">
+    <div class="jumbotron">
+      <h3><i>Zip Code: </i><%-data.Zipcode%></h3>
+      <h5><i>Borough: </i><%-data.Borough%></h5>
+      <%let boroughPerformance;%>
+      <%let cityPerformance;%>
+      <%let boroughCompareWord;%>
+      <%let cityCompareWord;%>
+      <%if (data.AvgScore-data.BoroughAvgScore>=1.5){boroughPerformance="significantly worse"; boroughCompareWord = "than"}%>
+      <%if (data.AvgScore-data.BoroughAvgScore<1.5 && data.AvgScore-data.BoroughAvgScore>0){boroughPerformance="slightly worse"; boroughCompareWord = "than"}%>
+      <%if (data.AvgScore-data.BoroughAvgScore>-1.5 && data.AvgScore-data.BoroughAvgScore<0){boroughPerformance="slightly better"; boroughCompareWord = "than"}%>
+      <%if (data.AvgScore-data.BoroughAvgScore<=-1.5){boroughPerformance="significantly better"; boroughCompareWord = "than"}%>
+      <%if (data.AvgScore==data.BoroughAvgScore){boroughPerformance="the same"; boroughCompareWord = "as"}%>
+
+
+      <%if (data.AvgScore-data.CityAvgScore>=1.5){cityPerformance="significantly worse"; cityCompareWord = "than"}%>
+      <%if (data.AvgScore-data.CityAvgScore<1.5 && data.AvgScore-data.CityAvgScore>0){cityPerformance="slightly worse"; cityCompareWord = "than"}%>
+      <%if (data.AvgScore-data.CityAvgScore>-1.5 && data.AvgScore-data.CityAvgScore<0){cityPerformance="slightly better"; cityCompareWord = "than"}%>
+      <%if (data.AvgScore-data.CityAvgScore<=-1.5){cityPerformance="significantly better"; cityCompareWord = "than"}%>
+      <%if (data.AvgScore==data.CityAvgScore){cityPerformance="the same"; cityCompareWord = "as"}%>
+
+
+      <%let boroughName = "";%>
+      <%if (data.Borough == "Bronx"){boroughName="the Bronx";}%>
+      <%if (data.Borough == "Brooklyn" || data.Borough == "Manhattan" || data.Borough == "Queens" || data.Borough == "Staten Island"){boroughName=data.Borough;} %>
+
+      <p>With an average inspection score of <%-data.AvgScore%>, one can expect the restaurants in Zip Code <%-data.Zipcode%> to offer facilities and eating experiences that are <%-boroughPerformance%>, on average, <%-boroughCompareWord%> other restaurants in <%-boroughName%> and <%-cityPerformance%>, on average, <%-cityCompareWord%> other restaurants in NYC.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-6">
+      <div id="myDiv"></div>
+    </div>
+    <div class="col-6">
+      <div id="myDiv2"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var plot = [
+  {
+    x: ['Zip Code: <%-data.Zipcode%>', 'Borough: <%-data.Borough%>', 'City: New York City'],
+    y: [<%-data.AvgScore%>, <%-data.BoroughAvgScore%>, <%-data.CityAvgScore%>],
+    type: 'bar',
+    text: [<%-data.AvgScore%>, <%-data.BoroughAvgScore%>, <%-data.CityAvgScore%>].map(String),
+    width: [.5, .5, .5],
+    textposition: 'auto',
+    hoverinfo: 'none',
+    type: 'bar',
+    marker: {
+      color: ['rgba(22, 152, 173, 1)', '#9ce7f2', '#9ce7f2']
+    }
+  }
+];
+var layout = {
+  title: 'Average Inspection Score in <%-data.Zipcode%>/<%-data.Borough%>/NYC',
+  yaxis: {
+    title: 'Avg. Inspection Score',
+    gridcolor: "rgba(150, 150, 150, 100)"
+  },
+  paper_bgcolor: "rgba(0,0,0,0)",
+  plot_bgcolor: "rgba(0,0,0,0)"
+}
+Plotly.newPlot('myDiv', plot, layout, {staticPlot: true});
+var gradesPlot = [
+  {
+    x: ['Total A Grades', 'Total B Grades', 'Total C Grades', 'Total Z Grades', 'Total N Grades', 'Total P Grades'],
+    y: [<%-data.A%>, <%-data.B%>, <%-data.C%>, <%-data.Z%>, <%-data.N%>, <%-data.P%>],
+    type: 'bar',
+    text: [<%-data.A%>, <%-data.B%>, <%-data.C%>, <%-data.Z%>, <%-data.N%>, <%-data.P%>].map(String),
+    textposition: 'auto',
+    hoverinfo: 'none',
+    type: 'bar',
+    marker: {
+      color: ['#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2']
+    }
+  }
+];
+var layout1 = {
+  title: 'Total Number of Each Inspection Grade in <%-data.Zipcode%>',
+  yaxis: {
+    title: 'Total Number of Grades',
+    gridcolor: "rgba(150, 150, 150, 100)"
+  },
+  paper_bgcolor: "rgba(0,0,0,0)",
+  plot_bgcolor: "rgba(0,0,0,0)"
+}
+Plotly.newPlot('myDiv2', gradesPlot, layout1, {staticPlot: true});
+</script>
+
+<%- include('global/footer.ejs'); %>

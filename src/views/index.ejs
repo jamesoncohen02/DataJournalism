@@ -1,0 +1,205 @@
+<%- include('global/header.ejs'); %>
+<%- include('global/navbar.ejs'); %>
+
+<div class="container-fluid">
+<div class="row justify-content-center">
+  <div class="col-9">
+    <div class="jumbotron">
+      <h3><i>Website Summary:</i></h3>
+      <p>Eat or Retreat is a website meant to inform both tourists and NYC residents on the average quality and cleanliness of restaurants in various zip codes throughout the city. The website uses raw data, provided by <a href="https://opendata.cityofnewyork.us/">NYC OpenData</a>, that includes the most recent inspection score and letter grade, as well as the address, zip code, and borough, for every restaurant throughout the city. We then convert that data into the various info-graphics that can be seen both on this "Home" page and on each of the individual zip code pages in the hopes of providing concise, yet helpful information to NYC restaurant consumers. In short, the goal is for this website to help people decide, on a regional basis, whether to eat or retreat.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-6">
+      <br>
+      <h5><b>NYC Department of Health Restaurant Inspection Results</b></h5>
+      <h7>Click on any of the zip codes in the map below to see their specific data. You can also use the list of zip code links, organized by borough, at the bottom of this page.</h7><br><br>
+      <%- include('svg.ejs'); %>
+    </div>
+    <div class="col-6">
+      <div id='barPlot'></div>
+      <div id='gradePlot'></div>
+    </div>
+  </div>
+
+  <script>
+  var scorePlot = [
+    {
+      x: ['NYC', '<%-data0.Borough%>', '<%-data1.Borough%>', '<%-data2.Borough%>', '<%-data3.Borough%>', '<%-data4.Borough%>'],
+      y: [<%-data5.CityAvgScore%>, <%-data0.BoroughAvgScore%>, <%-data1.BoroughAvgScore%>, <%-data2.BoroughAvgScore%>, <%-data3.BoroughAvgScore%>, <%-data4.BoroughAvgScore%>],
+      type: 'bar',
+      text: [<%-data5.CityAvgScore%>, <%-data0.BoroughAvgScore%>, <%-data1.BoroughAvgScore%>, <%-data2.BoroughAvgScore%>, <%-data3.BoroughAvgScore%>, <%-data4.BoroughAvgScore%>].map(String),
+      textposition: 'auto',
+      hoverinfo: 'none',
+      type: 'bar',
+      marker:{
+        color: ['rgba(22, 152, 173, 1)', '#9ce7f2', '#9ce7f2', '#9ce7f2','#9ce7f2','#9ce7f2']
+      }
+    }
+  ];
+  var scoreLayout = {
+    title: 'Average Restaurant Scores Across New York City',
+    yaxis: {
+      title: 'Avg. Inspection Score',
+      gridcolor: "rgba(150, 150, 150, 1)"
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    autosize: false,
+    height: 400,
+    width: 700
+  };
+  Plotly.newPlot('barPlot', scorePlot, scoreLayout, {staticPlot: true});
+  var gradeTotalPlot = [
+    {
+      x: ['Total A Grades:', 'Total B Grades', 'Total C Grades', 'Total Z Grades', 'Total N Grades', 'Total P Grades'],
+      y: [<%-data5.A%>, <%-data5.B%>, <%-data5.C%>, <%-data5.Z%>, <%-data5.N%>, <%-data5.P%>],
+      type: 'bar',
+      text: [<%-data5.A%>, <%-data5.B%>, <%-data5.C%>, <%-data5.Z%>, <%-data5.N%>, <%-data5.P%>].map(String),
+      textposition: 'auto',
+      hoverinfo: 'none',
+      type: 'bar',
+      marker: {
+        color: ['#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2', '#9ce7f2']
+      }
+    }
+  ];
+  var gradeLayout = {
+    title: 'Grade Distribution for Restaurants in New York City',
+    yaxis: {
+      title: 'Total Number of Grades',
+      gridcolor: "rgba(150, 150, 150, 1)"
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    autosize: false,
+    height:400,
+    width: 700
+  };
+  Plotly.newPlot('gradePlot', gradeTotalPlot, gradeLayout, {staticPlot: true});
+
+  let linkZips = document.getElementsByClassName("zip-link-item");
+  let linkZipsArr = [];
+  for (let i = 0; i<linkZips.length; i++){
+    if (linkZips[i].childNodes[0].id.includes("_")){
+      linkZipsArr.push(linkZips[i].childNodes[0].id.slice(0, linkZips[i].childNodes[0].id.indexOf("_")));
+    } else{
+    linkZipsArr.push(linkZips[i].childNodes[0].id);
+  }
+  }
+  //linkZipsArr.sort();
+
+  let dataBig = <%-svgData%>;
+  let ourData = dataBig.sort(function(a,b){
+    return parseInt(a.Zipcode)-parseInt(b.Zipcode);
+  });
+
+  let scoresInOrder = [];
+  for (let i = 0; i < linkZipsArr.length; i++){
+    let currZipScore = 0;
+    let correctZip = "";
+    for(let j = 0; j < ourData.length; j++){
+      if(ourData[j].Zipcode == linkZipsArr[i]){
+        currZipScore = ourData[j].AvgScore;
+        correctZip = ourData[j].Zipcode;
+      }
+    }
+    let svgObj = {
+      "Zipcode": correctZip,
+      "AvgScore": currZipScore
+    }
+    scoresInOrder.push(svgObj);
+  }
+
+  for(let i = 0; i < linkZipsArr.length; i++){
+    let colFill = 0;
+    for(let j = 0; j < scoresInOrder.length; j++){
+      if(linkZipsArr[i] == scoresInOrder[j].Zipcode){
+        colFill = ((parseFloat(scoresInOrder[j].AvgScore)-2.5)/(15))*(230-110) + 110;
+      }
+    }
+    linkZips[i].childNodes[0].setAttribute("style", "fill:hsl(" + colFill + ",88%,47%);");
+  }
+
+  /*double prop = (n-oldMin)/(oldMax-oldMin); //Find proportion of old range
+  return prop*(newMax-newMin) + newMin;*/
+  </script>
+<br>
+<div class="container-fluid">
+<div class="row justify-content-center">
+  <div class="col-9">
+    <div class="jumbotron">
+      <h5>Important Information:</h5>
+      <p><i>NYC Restaurant Scores:</i> After an inspection, a restaurant is given a score along with a grade to help differentiate with more than just a letter. Similarly to golf, a lower score is better: 0-13 denotes an A restaurant, 14-27 denotes a B restaurant, and 28+ denotes a C restaurant.</p>
+      <p><i>NYC Restaurant Grades:</i> New York City has required restaurants to post letter grades that correspond to scores received from sanitary inspections. The conversions between score and grade are mentioned above. Grade cards must be posted where they can easily be seen by people passing by. This website compiles all the data of NYC restaurant grades in order to give viewers an easy way to determine what some of the best (and worst) restaurants are in various neighborhoods throughout NYC. A restaurant can be given a grade of A, B, or C. Restaurants that are awaiting inspection or have pending results are given N (not yet graded), Z (grade pending), and P (grade pending after a restaurant contested a grade they received).</p>
+      <p><i>Restaurant Inspection:</i> During an inspection, a state or local inspector visits a restaurant and checks all of the parts of the restaurant for various standards. They check the quality of food, cleanliness in the kitchen, sanitation in the seating area, insect and rodent population, and much more while determining a final score and grade.</p>
+  </div>
+</div>
+</div>
+<div id = "zipCodeList">
+  <div class="row">
+    <div class="col-1">
+    </div>
+    <div class="col-2">
+      <h5>Bronx Zip Codes:</h5>
+      <div style="height:250px;border:1px solid #ccc;overflow:auto;">
+      <% for (let i = 0; i<data.length-6; i++){ %>
+        <%if (data[i].Borough == "Bronx"){%>
+          <p><a href="<%-data[i].Zipcode%>.html"><%-data[i].Zipcode%></a></a> - Avg. Score: <%-data[i].AvgScore%></p>
+        <%}%>
+      <%}%>
+      </div>
+    </div>
+    <div class="col-2">
+      <h5>Brooklyn Zip Codes:</h5>
+      <div style="height:250px;border:1px solid #ccc;overflow:auto;">
+        <% for (let i = 0; i<data.length-6; i++){ %>
+          <%if (data[i].Borough == "Brooklyn"){%>
+            <p><a href="<%-data[i].Zipcode%>.html"><%-data[i].Zipcode%></a></a> - Avg. Score: <%-data[i].AvgScore%></p>
+          <%}%>
+        <%}%>
+      </div>
+    </div>
+    <div class="col-2">
+      <h5>Manhattan Zip Codes</h5>
+      <div style="height:250px;border:1px solid #ccc;overflow:auto;">
+      <% for (let i = 0; i<data.length-6; i++){ %>
+        <%if (data[i].Borough == "Manhattan"){%>
+          <p><a href="<%-data[i].Zipcode%>.html"><%-data[i].Zipcode%></a> - Avg. Score: <%-data[i].AvgScore%></p>
+        <%}%>
+      <%}%>
+      </div>
+    </div>
+    <div class="col-2">
+      <h5>Queens Zip Codes:</h5>
+      <div style="height:250px;border:1px solid #ccc;overflow:auto;">
+      <% for (let i = 0; i<data.length-6; i++){ %>
+        <%if (data[i].Borough == "Queens"){%>
+          <p><a href="<%-data[i].Zipcode%>.html"><%-data[i].Zipcode%></a></a> - Avg. Score: <%-data[i].AvgScore%></p>
+       <%}%>
+      <%}%>
+      </div>
+    </div>
+    <div class="col-2">
+      <h5 style="font-size:16px;">Staten Island Zip Codes:</h5>
+      <div style="height:250px;border:1px solid #ccc;overflow:auto;">
+      <% for (let i = 0; i<data.length-6; i++){ %>
+        <%if (data[i].Borough == "Staten Island"){%>
+          <p><a href="<%-data[i].Zipcode%>.html"><%-data[i].Zipcode%></a></a> - Avg. Score: <%-data[i].AvgScore%></p>
+        <%}%>
+      <%}%>
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  </div>
+</div>
+
+<br>
+<br>
+<%- include('global/footer.ejs'); %>

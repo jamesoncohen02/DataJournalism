@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: data_to_content.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: data_to_content.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs');
+
+/**
+  * Defines the array that will be used to compile all of our NYC Restaurant data
+  * @author Jameson Cohen
+*/
+let zipcodes = [];
+
+/**
+  * Reads the raw CSV data and splits it up so that it can be easily transformed into a JSON file
+  * @author Jameson Cohen
+*/
+let peeps_csv = fs.readFileSync('data/original/restaurantData.csv', 'utf8');
+let peeps = peeps_csv.split("\n");
+
+/**
+  * Defines the arrays that will be used to track all of the data that has been checked so that there are no duplicates
+  * @author Jameson Cohen
+*/
+let restAllNames = [];
+let restAllAdds = [];
+
+/**
+  * Works through and compiles all of our raw data into a zip object that gets pushed to the zipcode array
+  * @author Jameson Cohen
+*/
+for(let peep = 1; peep &lt; peeps.length; peep++){
+  let zipcodeInfo = peeps[peep].split(',');
+  let zipNextInfo = '';
+  if(peep &lt; peeps.length-1){
+    zipNextInfo = peeps[peep+1].split(',');
+  }
+  else{
+    zipNextInfo = peeps[1].split(',');
+  }
+  if(!restAllNames.includes(zipcodeInfo[1]) &amp;&amp; !restAllAdds.includes(zipcodeInfo[3] + " " + zipcodeInfo[4])
+    &amp;&amp; !isNaN(zipcodeInfo[5]) &amp;&amp; !isNaN(zipcodeInfo[8]) &amp;&amp; zipcodeInfo[5].length == 5 &amp;&amp; zipcodeInfo[5] != "" &amp;&amp; zipcodeInfo[8] != "" &amp;&amp; zipcodeInfo[9] != ""){
+    let zip = {};
+    restAllNames.push(zipcodeInfo[1]);
+    restAllAdds.push(zipcodeInfo[3] + " " + zipcodeInfo[4]);
+    if(zipcodeInfo[2] == "0"){
+      if(zipcodeInfo[5] == "10166" || zipcodeInfo[5] == "10168"|| zipcodeInfo[5] == "10285"){
+        zipcodeInfo[2] = "Manhattan";
+      }
+      else if(zipcodeInfo[5] == "11451"){
+        zipcodeInfo[2] = "Queens";
+      }
+      else if(zipcodeInfo[5] == "11249"){
+        zipcodeInfo[2] = "Brooklyn";
+      }
+    }
+    zip['Restaurant_Name'] = zipcodeInfo[1];
+    zip['Zipcode'] = zipcodeInfo[5];
+    zip['Grade'] = zipcodeInfo[9];
+    zip['Score'] = zipcodeInfo[8];
+    zip['Cuisine'] = zipcodeInfo[7];
+    zip['Borough'] = zipcodeInfo[2];
+    zip['Address'] = zipcodeInfo[3] + " " + zipcodeInfo[4];
+    zipcodes.push(zip);
+  }
+};//);
+
+/**
+  * Corrects any restaurants that have the wrong grade for the numerical score they were given
+  * @author Jameson Cohen
+*/
+for (let i = 0; i&lt;zipcodes.length; i++){
+  if (zipcodes[i].Grade == "A"){
+    if (zipcodes[i].Score>13 &amp;&amp; zipcodes[i].Score&lt;28){
+      zipcodes[i].Grade = "B";
+    } else if (zipcodes[i].Score>=28){
+      zipcodes[i].Grade = "C";
+    }
+  } else if (zipcodes[i].Grade == "B"){
+    if (zipcodes[i].Score&lt;14){
+      zipcodes[i].Grade = "A";
+    } else if (zipcodes[i].Score>=28){
+      zipcodes[i].Grade = "C";
+    }
+  } else if (zipcodes[i].Grade == "C"){
+    if (zipcodes[i].Score&lt;28 &amp;&amp; zipcodes[i].Score>=14){
+      zipcodes[i].Grade = "B";
+    } else if (zipcodes[i].Score&lt;14){
+      zipcodes[i].Grade = "A";
+    }
+  }
+}
+
+/**
+  * Writes the compiled data into a content.JSON file
+  * @author Jameson Cohen  
+*/
+fs.writeFileSync('data/clean/content.json', JSON.stringify(zipcodes), 'utf8');
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#allZipCodes">allZipCodes</a></li><li><a href="global.html#dirName">dirName</a></li><li><a href="global.html#distFiles">distFiles</a></li><li><a href="global.html#distName">distName</a></li><li><a href="global.html#dsStoreArr">dsStoreArr</a></li><li><a href="global.html#fileNames">fileNames</a></li><li><a href="global.html#index_html">index_html</a></li><li><a href="global.html#macroDataArr">macroDataArr</a></li><li><a href="global.html#macroObj">macroObj</a></li><li><a href="global.html#micro_template">micro_template</a></li><li><a href="global.html#pageNames">pageNames</a></li><li><a href="global.html#peeps_csv">peeps_csv</a></li><li><a href="global.html#rawData">rawData</a></li><li><a href="global.html#restAllNames">restAllNames</a></li><li><a href="global.html#restaurantData">restaurantData</a></li><li><a href="global.html#totalA">totalA</a></li><li><a href="global.html#zipcodes">zipcodes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Feb 15 2021 22:19:37 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
