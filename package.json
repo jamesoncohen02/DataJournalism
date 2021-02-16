@@ -1,5 +1,5 @@
 {
-  "name": "DataJournalism_JCohen",
+  "name": "JCohen_DataJournalism",
   "version": "1.0.0",
   "description": "Data Journalism Automation",
   "main": "util/page_generator.js",
@@ -61,12 +61,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+URL"
+    "url": "git+https://github.com/jamesoncohen02/DataJournalism.git"
   },
   "author": "Jameson Cohen",
   "license": "ISC",
   "bugs": {
-    "url": "URL"
+    "url": "https://github.com/jamesoncohen02/DataJournalism.git"
   },
-  "homepage": "URL#readme"
+  "homepage": "https://github.com/jamesoncohen02/DataJournalism.git#readme"
 }
